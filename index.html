@@ -293,10 +293,10 @@
             canvas.height = 256;
             const context = canvas.getContext('2d');
             
-            context.fillStyle = '#1a1a2e';
+            context.fillStyle = '#333333'; // Dark gray for a normal path
             context.fillRect(0, 0, canvas.width, canvas.height);
 
-            context.strokeStyle = 'rgba(78, 205, 196, 0.8)';
+            context.strokeStyle = 'rgba(255, 255, 255, 0.8)'; // White centerline
             context.lineWidth = 5;
             context.setLineDash([10, 10]);
             context.beginPath();
@@ -304,7 +304,7 @@
             context.lineTo(canvas.width / 2, canvas.height);
             context.stroke();
 
-            context.strokeStyle = 'rgba(78, 205, 196, 0.2)';
+            context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
             context.lineWidth = 1;
             context.setLineDash([]);
             for (let i = 25; i < canvas.width; i += 25) {
@@ -360,32 +360,19 @@
 
         function createRoadGeometry(points) {
             const curve = new THREE.CatmullRomCurve3(points);
-            const samples = 50;
-            const width = 10;
-            const thickness = 0.2;
-            const shape = new THREE.Shape();
-            shape.moveTo(-width / 2, 0);
-            shape.lineTo(width / 2, 0);
-            shape.lineTo(width / 2, -thickness);
-            shape.lineTo(-width / 2, -thickness);
-            shape.closePath();
-
-            const extrudeSettings = {
-                steps: samples,
-                depth: thickness,
-                bevelEnabled: false,
-                extrudePath: curve
-            };
-            const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-            geometry.rotateX(-Math.PI / 2);
-            geometry.translate(0, -5, 0);
+            const tubularSegments = 50;
+            const radius = 5; // Half of 10m width
+            const radialSegments = 8;
+            const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false);
             const material = new THREE.MeshPhongMaterial({
                 map: createRoadTexture(),
+                color: 0x333333,
                 emissive: 0x4ecdc4,
-                emissiveIntensity: 0.3,
+                emissiveIntensity: 0.2,
                 shininess: 50
             });
             const road = new THREE.Mesh(geometry, material);
+            road.position.y = -4.9; // Slightly above ground to avoid z-fighting
             road.receiveShadow = true;
             return road;
         }
@@ -433,8 +420,6 @@
 
             document.addEventListener('keydown', (e) => {
                 if (e.code === 'KeyE' && activeStation && activeStation.url) {
-                    // Commented out due to 403 error
-                    // new Audio('https://cdn.pixabay.com/audio/2022/03/24/click.mp3').play();
                     window.open(activeStation.url, '_blank');
                 }
             });
@@ -499,14 +484,14 @@
             console.log('Added stars');
 
             const pathPoints = [
-                new THREE.Vector3(0, -5, 0),
-                new THREE.Vector3(35, -5, -35),
-                new THREE.Vector3(70, -5, -55),
-                new THREE.Vector3(105, -5, -25),
-                new THREE.Vector3(140, -5, -55),
-                new THREE.Vector3(175, -5, -25),
-                new THREE.Vector3(210, -5, -55),
-                new THREE.Vector3(245, -5, -25)
+                new THREE.Vector3(0, -4.9, 0),
+                new THREE.Vector3(35, -4.9, -35),
+                new THREE.Vector3(70, -4.9, -55),
+                new THREE.Vector3(105, -4.9, -25),
+                new THREE.Vector3(140, -4.9, -55),
+                new THREE.Vector3(175, -4.9, -25),
+                new THREE.Vector3(210, -4.9, -55),
+                new THREE.Vector3(245, -4.9, -25)
             ];
             const road = createRoadGeometry(pathPoints);
             scene.add(road);
@@ -706,8 +691,6 @@
                     visitedStations.add(index);
                     s.light.intensity = 2;
                     s.holo.material.opacity = 1;
-                    // Commented out due to 403 error
-                    // new Audio('https://cdn.pixabay.com/audio/2022/03/24/click.mp3').play();
                 }
 
                 if (distance < 15 && isFacing) {
