@@ -275,9 +275,17 @@
       transition: all 0.3s ease;
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
-      color: #FFFFFF;
+      color: #b6b2b2;
       box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3);
       display: inline-block;
+      position: relative;
+      z-index: 999; /* increase if needed */
+      pointer-events: auto;
+  }
+  .my-link {
+      position: relative;
+      z-index: 999; 
+      pointer-events: auto;
   }
   
   .cta-btn.primary {
@@ -288,6 +296,7 @@
   
   .cta-btn:hover {
       transform: translateY(-3px);
+      
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.4);
   }
   

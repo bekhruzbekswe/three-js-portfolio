@@ -3,728 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bekhruzbek Mirzaliev - PHP Developer Portfolio</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/PointerLockControls.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@700&display=swap');
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-            color: #e0e0e0;
-            cursor: none;
-        }
-
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        #vignette {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            background: radial-gradient(circle at center, transparent 60%, rgba(0, 0, 0, 0.7) 100%);
-            z-index: 2;
-        }
-
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 4;
-            transition: opacity 0.5s ease-out;
-        }
-
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #loading-screen h1 {
-            color: #4ecdc4;
-            font-size: 2rem;
-            font-weight: 700;
-            text-shadow: 0 2px 4px rgba(78, 205, 196, 0.3);
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        #loading-progress {
-            width: 200px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin-top: 1rem;
-            overflow: hidden;
-        }
-
-        #loading-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4ecdc4, #ff6b9d);
-            width: 0;
-            transition: width 0.2s ease;
-        }
-
-        #instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(26, 26, 46, 0.9) 100%);
-            padding: 2.5rem;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            z-index: 3;
-            text-align: center;
-            color: #fff;
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.7),
-                0 0 30px rgba(78, 205, 196, 0.2);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(78, 205, 196, 0.3);
-            animation: fadeInUp 1s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -30%);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
-        }
-
-        #instructions.hidden {
-            opacity: 0;
-            transform: translate(-50%, -70%);
-            transition: all 0.5s ease-out;
-            pointer-events: none;
-        }
-
-        #instructions h1 {
-            color: #4ecdc4;
-            margin-bottom: 1rem;
-            font-size: 2rem;
-            font-weight: 700;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        #crosshair {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 30px;
-            height: 30px;
-            transform: translate(-50%, -50%);
-            z-index: 3;
-            pointer-events: none;
-            border: 2px solid rgba(78, 205, 196, 0.8);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
-        }
-
-        #crosshair::before,
-        #crosshair::after {
-            content: '';
-            position: absolute;
-            background: rgba(78, 205, 196, 0.8);
-        }
-
-        #crosshair::before {
-            width: 2px;
-            height: 10px;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        #crosshair::after {
-            width: 10px;
-            height: 2px;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        #progress-bar {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            z-index: 3;
-            overflow: hidden;
-        }
-
-        #progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4ecdc4, #ff6b9d);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-
-        #prompt {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #4ecdc4;
-            font-size: 1rem;
-            font-family: 'Orbitron', sans-serif;
-            text-shadow: 0 0 5px rgba(78, 205, 196, 0.7);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 3;
-        }
-
-        #prompt.visible {
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            #instructions {
-                font-size: 1rem;
-                padding: 2rem;
-            }
-
-            #instructions h1 {
-                font-size: 1.5rem;
-            }
-
-            #loading-screen h1 {
-                font-size: 1.5rem;
-            }
-
-            #progress-bar {
-                width: 200px;
-            }
-        }
-    </style>
+    <title>Bekhruzbek Mirzaliev - PHP Developer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="canvas-container"></div>
-    <div id="vignette"></div>
-    <div id="loading-screen">
-        <h1>Loading Portfolio...</h1>
-        <div id="loading-progress">
-            <div id="loading-progress-fill"></div>
+    <!-- Background with animated bubbles -->
+    <div class="background">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-tabs">
+            <a href="#hero" class="nav-tab active">Home</a>
+            <a href="#about" class="nav-tab">About</a>
+            <a href="#experience" class="nav-tab">Experience</a>
+            <a href="#contact" class="nav-tab">Contact</a>
         </div>
-    </div>
-    <div id="instructions">
-        <h1>Welcome to My Portfolio!</h1>
-        <p>Walk the path of my career journey</p><br>
-        Press <strong>W</strong> or <strong>↑</strong> to move forward<br>
-        Use <strong>WASD</strong> or <strong>Arrow Keys</strong> to navigate<br>
-        Approach stations to view details<br>
-        Press <strong>E</strong> to open links<br>
-        Tap to move on mobile
-    </div>
-    <div id="crosshair"></div>
-    <div id="progress-bar">
-        <div id="progress-fill"></div>
-    </div>
-    <div id="prompt"></div>
+    </nav>
+
+    <main class="main">
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-container">
+                <div class="hero-left">
+                    <div class="hero-left-content animate-on-scroll">
+                        <h1 class="hero-title">Bekhruzbek Mirzaliev</h1>
+                        <div class="subtitle">PHP Backend Developer</div>
+                    </div>
+                </div>
+                <div class="hero-right">
+                    <video class="hero-video" autoplay loop muted playsinline>
+                        <source src="video1.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about section-transition" id="about">
+            <div class="about-glass glass animate-on-scroll">
+                <div class="about-image">
+                    <img src="me.JPG" alt="Bekhruzbek Mirzaliev">
+                </div>
+                <div class="about-content">
+                    <h1>Bekhruzbek Mirzaliev</h1>
+                    <div class="about-brief">
+                        I'm a passionate PHP developer with expertise in crafting scalable backend solutions using frameworks like Laravel, Symfony, and Yii. With a background in ESL teaching, I bring strong communication skills to simplify complex technical concepts and drive team collaboration. My work focuses on automation, performance optimization, and seamless API integrations. <a href="#expertise" class="my-link">Explore my expertise</a>.
+                    </div>
+                    <div class="cta-buttons">
+                        <a href="https://t.me/richard_9757" class="cta-btn primary">Get in Touch</a>
+                        <a href="https://www.linkedin.com/in/bekhruzbekswe" class="cta-btn" target="_blank">View LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expertise Section -->
+        <section class="section section-transition" id="expertise">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <h2>Crafting Digital Excellence</h2>
+                    <p>Blending technical expertise with creative problem-solving to deliver robust backend solutions</p>
+                </div>
+                
+                <div class="cards-grid">
+                    <div class="card glass animate-on-scroll">
+                        <span class="card-icon">🚀</span>
+                        <h3>Innovation First</h3>
+                        <p>Developed internal automation tools that reduced SEO task time by over 40%, demonstrating my commitment to efficiency and innovation in problem-solving.</p>
+                        <ul>
+                            <li>Designed a custom PHP-based automation suite for SEO workflows</li>
+                            <li>Integrated APIs to streamline data processing</li>
+                            <li>Reduced manual workload by automating repetitive tasks</li>
+                        </ul>
+                    </div>
+                    <div class="card glass animate-on-scroll">
+                        <span class="card-icon">🔧</span>
+                        <h3>Tech Versatility</h3>
+                        <p>Proficient across multiple PHP frameworks including Laravel, Symfony, and Yii, with expertise in modernizing legacy systems and optimizing performance.</p>
+                        <ul>
+                            <li>Modernized legacy PHP applications for improved scalability</li>
+                            <li>Optimized database queries for 30% faster response times</li>
+                            <li>Implemented RESTful APIs for seamless integrations</li>
+                        </ul>
+                    </div>
+                    <div class="card glass animate-on-scroll">
+                        <span class="card-icon">🌟</span>
+                        <h3>Unique Background</h3>
+                        <p>Former ESL teacher with exceptional communication skills, bringing the ability to simplify complex concepts and collaborate effectively in team environments.</p>
+                        <ul>
+                            <li>Translated technical requirements into actionable plans</li>
+                            <li>Facilitated cross-functional team collaboration</li>
+                            <li>Mentored junior developers in best practices</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section class="section section-transition" id="experience">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <h2>Professional Journey</h2>
+                    <p>A timeline of impactful contributions and technical growth</p>
+                </div>
+                
+                <div class="timeline">
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content glass">
+                            <h4>PHP Developer</h4>
+                            <div class="company">Oqila</div>
+                            <div class="duration">April 2025 - Present</div>
+                            <p>Leading development of internal automation tools and modernizing legacy systems for enhanced performance and scalability.</p>
+                            <ul>
+                                <li>Developed a PHP-based automation suite reducing task time by 40%</li>
+                                <li>Migrated legacy codebases to modern PHP frameworks</li>
+                                <li>Optimized server configurations for high-traffic applications</li>
+                                <li>Collaborated with frontend teams for seamless API integrations</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content glass">
+                            <h4>Associate Software Engineer</h4>
+                            <div class="company">Lincoln Labs</div>
+                            <div class="duration">January 2025 - March 2025</div>
+                            <p>Contributed to system maintenance and technical problem resolution, enhancing project efficiency.</p>
+                            <ul>
+                                <li>Maintained and optimized PHP-based applications</li>
+                                <li>Resolved critical bugs in production environments</li>
+                                <li>Implemented MySQL database optimizations</li>
+                                <li>Supported cross-functional teams in agile workflows</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content glass">
+                            <h4>PHP Developer (Intern)</h4>
+                            <div class="company">iTransition</div>
+                            <div class="duration">January 2025 - February 2025</div>
+                            <p>Gained hands-on experience with modern PHP frameworks and cloud technologies in a remote setting.</p>
+                            <ul>
+                                <li>Developed features using Symfony and React.js</li>
+                                <li>Deployed applications on AWS infrastructure</li>
+                                <li>Designed PostgreSQL database schemas</li>
+                                <li>Participated in code reviews and agile sprints</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section class="section section-transition" id="skills">
+            <div class="container">
+                <div class="skills-container glass animate-on-scroll">
+                    <h2>Technical Expertise</h2>
+                    <p>Mastering the tools that power modern web development</p>
+                    <div class="skills-grid">
+                        <div class="skill-item"><i class="fab fa-php"></i> PHP</div>
+                        <div class="skill-item"><i class="fas fa-code"></i> Laravel</div>
+                        <div class="skill-item"><i class="fas fa-cubes"></i> Symfony</div>
+                        <div class="skill-item"><i class="fas fa-boxes"></i> Yii2</div>
+                        <div class="skill-item"><i class="fas fa-database"></i> MySQL</div>
+                        <div class="skill-item"><i class="fas fa-database"></i> PostgreSQL</div>
+                        <div class="skill-item"><i class="fas fa-link"></i> REST API</div>
+                        <div class="skill-item"><i class="fas fa-project-diagram"></i> GraphQL</div>
+                        <div class="skill-item"><i class="fab fa-git-alt"></i> Git</div>
+                        <div class="skill-item"><i class="fab fa-linux"></i> Linux</div>
+                        <div class="skill-item"><i class="fas fa-server"></i> Apache</div>
+                        <div class="skill-item"><i class="fas fa-network-wired"></i> Nginx</div>
+                        <div class="skill-item"><i class="fab fa-aws"></i> AWS</div>
+                        <div class="skill-item"><i class="fab fa-react"></i> React.js</div>
+                        <div class="skill-item"><i class="fab fa-bootstrap"></i> Bootstrap</div>
+                        <div class="skill-item"><i class="fab fa-docker"></i> Docker</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="section section-transition" id="contact">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <h2>Let's Collaborate</h2>
+                    <p>Ready to build something extraordinary together</p>
+                </div>
+                
+                <div class="contact-grid">
+                    <div class="contact-item glass animate-on-scroll">
+                        <span class="contact-icon"><i class="fas fa-envelope"></i></span>
+                        <h4>Email</h4>
+                        <p>Reach out for collaboration and help</p>
+                        <a href="mailto:bekhruzbekswe@gmail.com" class="my-link">bekhruzbekswe@gmail.com</a>
+                    </div>
+                    <div class="contact-item glass animate-on-scroll">
+                        <span class="contact-icon"><i class="fas fa-briefcase"></i></span>
+                        <h4>LinkedIn</h4>
+                        <p>Connect for professional networking</p>
+                        <a href="https://www.linkedin.com/in/bekhruzbekswe" target="_blank" class="my-link">Connect with me</a>
+                    </div>
+                    <div class="contact-item glass animate-on-scroll">
+                        <span class="contact-icon">📞</span>
+                        <h4>Phone</h4>
+                        <p>Available for direct discussions</p>
+                        <a href="tel:+998912809757" class="my-link">+998 (91) 280-97-57</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 
     <script>
-        let scene, camera, renderer, controls, ground, stations = [];
-        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
-        let hasMoved = false, currentStationIndex = 0;
-        const visitedStations = new Set();
-        const velocity = new THREE.Vector3();
-        const direction = new THREE.Vector3();
-        const clock = new THREE.Clock();
-        let activeStation = null;
-
-        function createGridTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 1024;
-            canvas.height = 1024;
-            const context = canvas.getContext('2d');
-            
-            context.fillStyle = '#0a0a0a';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
-            context.strokeStyle = 'rgba(78, 205, 196, 0.3)';
-            context.lineWidth = 1;
-            for (let i = 0; i <= canvas.width; i += 50) {
-                context.beginPath();
-                context.moveTo(i, 0);
-                context.lineTo(i, canvas.height);
-                context.stroke();
-                context.beginPath();
-                context.moveTo(0, i);
-                context.lineTo(canvas.width, i);
-                context.stroke();
-            }
-
-            return new THREE.CanvasTexture(canvas);
-        }
-
-        function createRoadTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256;
-            canvas.height = 256;
-            const context = canvas.getContext('2d');
-            
-            context.fillStyle = '#333333'; // Dark gray for a normal path
-            context.fillRect(0, 0, canvas.width, canvas.height);
-
-            context.strokeStyle = 'rgba(255, 255, 255, 0.8)'; // White centerline
-            context.lineWidth = 5;
-            context.setLineDash([10, 10]);
-            context.beginPath();
-            context.moveTo(canvas.width / 2, 0);
-            context.lineTo(canvas.width / 2, canvas.height);
-            context.stroke();
-
-            context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-            context.lineWidth = 1;
-            context.setLineDash([]);
-            for (let i = 25; i < canvas.width; i += 25) {
-                context.beginPath();
-                context.moveTo(i, 0);
-                context.lineTo(i, canvas.height);
-                context.stroke();
-            }
-
-            return new THREE.CanvasTexture(canvas);
-        }
-
-        function createTextTexture(textContent, width = 2048, height = 1536) {
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const context = canvas.getContext('2d');
-            
-            const gradient = context.createLinearGradient(0, 0, 0, height);
-            gradient.addColorStop(0, 'rgba(10, 10, 20, 0.9)');
-            gradient.addColorStop(1, 'rgba(26, 26, 46, 0.9)');
-            context.fillStyle = gradient;
-            context.fillRect(0, 0, width, height);
-
-            context.strokeStyle = 'rgba(78, 205, 196, 1)';
-            context.lineWidth = 12;
-            context.beginPath();
-            context.roundRect(40, 40, width - 80, height - 80, 50);
-            context.shadowColor = 'rgba(78, 205, 196, 0.7)';
-            context.shadowBlur = 30;
-            context.stroke();
-            context.shadowBlur = 0;
-
-            context.textAlign = 'left';
-            context.textBaseline = 'top';
-            const lines = textContent.split('\n');
-            let y = 80;
-            lines.forEach(line => {
-                if (line.startsWith('- ')) {
-                    context.font = '40px Inter';
-                    context.fillStyle = '#e0e0e0';
-                    context.fillText('• ' + line.slice(2), 100, y);
-                } else {
-                    context.font = line.includes('Bekhruzbek') || line.includes('PHP Developer') || line.includes('(Apr 2025') || line.includes('(Feb 2024') || line.includes('(Jan 2025') || line.includes('Education') || line.includes('Technical Skills') || line.includes('Let\'s Connect') ? 'bold 64px Orbitron' : '48px Inter';
-                    context.fillStyle = line.includes('Bekhruzbek') || line.includes('PHP Developer') || line.includes('(Apr 2025') || line.includes('(Feb 2024') || line.includes('(Jan 2025') || line.includes('Education') || line.includes('Technical Skills') || line.includes('Let\'s Connect') ? '#4ecdc4' : '#e0e0e0';
-                    context.fillText(line, 80, y);
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = tab.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
-                y += 80;
+                
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
             });
+        });
 
-            return new THREE.CanvasTexture(canvas);
-        }
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-        function createRoadGeometry(points) {
-            const curve = new THREE.CatmullRomCurve3(points);
-            const tubularSegments = 50;
-            const radius = 5; // Half of 10m width
-            const radialSegments = 8;
-            const geometry = new THREE.TubeGeometry(curve, tubularSegments, radius, radialSegments, false);
-            const material = new THREE.MeshPhongMaterial({
-                map: createRoadTexture(),
-                color: 0x333333,
-                emissive: 0x4ecdc4,
-                emissiveIntensity: 0.2,
-                shininess: 50
-            });
-            const road = new THREE.Mesh(geometry, material);
-            road.position.y = -4.9; // Slightly above ground to avoid z-fighting
-            road.receiveShadow = true;
-            return road;
-        }
-
-        function init() {
-            scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x0a0a0a, 20, 200);
-
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 2, 0);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.setClearColor(0x0a0a0a, 1);
-            document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-            controls = new THREE.PointerLockControls(camera, document.body);
-            controls.pointerSpeed = 0.8;
-            document.addEventListener('click', () => {
-                if (!controls.isLocked) {
-                    controls.lock();
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                    observer.unobserve(entry.target);
                 }
             });
+        }, observerOptions);
 
-            let touchStartX = 0, touchStartY = 0;
-            document.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            });
-            document.addEventListener('touchmove', (e) => {
-                const deltaX = e.touches[0].clientX - touchStartX;
-                const deltaY = e.touches[0].clientY - touchStartY;
-                controls.getObject().rotation.y -= deltaX * 0.003;
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-                moveForward = deltaY < -10;
-                moveBackward = deltaY > 10;
-            });
-            document.addEventListener('touchend', () => {
-                moveForward = false;
-                moveBackward = false;
-            });
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
 
-            document.addEventListener('keydown', (e) => {
-                if (e.code === 'KeyE' && activeStation && activeStation.url) {
-                    window.open(activeStation.url, '_blank');
+        // Section transition animations
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    sectionObserver.unobserve(entry.target);
                 }
             });
+        }, { threshold: 0.1 });
 
-            let loadProgress = 0;
-            const loadInterval = setInterval(() => {
-                loadProgress += 20;
-                document.getElementById('loading-progress-fill').style.width = `${loadProgress}%`;
-                if (loadProgress >= 100) {
-                    clearInterval(loadInterval);
-                    setTimeout(() => {
-                        document.getElementById('loading-screen').classList.add('hidden');
-                    }, 500);
-                }
-            }, 400);
+        document.querySelectorAll('.section-transition').forEach(section => {
+            sectionObserver.observe(section);
+        });
 
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-            scene.add(ambientLight);
+        // Navigation visibility and hero transition
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.nav');
+            const hero = document.querySelector('.hero');
+            const heroHeight = hero.offsetHeight;
 
-            const groundGeometry = new THREE.PlaneGeometry(2000, 2000);
-            const groundMaterial = new THREE.MeshPhongMaterial({ 
-                map: createGridTexture(),
-                shininess: 50,
-                emissive: 0x4ecdc4,
-                emissiveIntensity: 0.1
-            });
-            ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.position.y = -5;
-            ground.receiveShadow = true;
-            scene.add(ground);
-            console.log('Added ground');
-
-            const starCount = 1500;
-            const starGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(starCount * 3);
-            const velocities = new Float32Array(starCount * 3);
-            const colors = new Float32Array(starCount * 3);
-            for (let i = 0; i < starCount; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 400;
-                positions[i * 3 + 1] = Math.random() * 50 + 10;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
-                velocities[i * 3] = (Math.random() - 0.5) * 0.1;
-                velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.02;
-                velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
-                colors[i * 3] = 0.8;
-                colors[i * 3 + 1] = 0.8;
-                colors[i * 3 + 2] = 1;
-            }
-            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            const starMaterial = new THREE.PointsMaterial({
-                size: 0.3,
-                transparent: true,
-                opacity: 0.8,
-                vertexColors: true,
-                blending: THREE.AdditiveBlending
-            });
-            const stars = new THREE.Points(starGeometry, starMaterial);
-            stars.velocities = velocities;
-            scene.add(stars);
-            console.log('Added stars');
-
-            const pathPoints = [
-                new THREE.Vector3(0, -4.9, 0),
-                new THREE.Vector3(35, -4.9, -35),
-                new THREE.Vector3(70, -4.9, -55),
-                new THREE.Vector3(105, -4.9, -25),
-                new THREE.Vector3(140, -4.9, -55),
-                new THREE.Vector3(175, -4.9, -25),
-                new THREE.Vector3(210, -4.9, -55),
-                new THREE.Vector3(245, -4.9, -25)
-            ];
-            const road = createRoadGeometry(pathPoints);
-            scene.add(road);
-            console.log('Added road');
-
-            const lampPositions = [];
-            const curve = new THREE.CatmullRomCurve3(pathPoints);
-            const samples = 10;
-            for (let i = 0; i <= samples; i++) {
-                const t = i / samples;
-                const point = curve.getPointAt(t);
-                const tangent = curve.getTangentAt(t);
-                const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
-                lampPositions.push({
-                    left: point.clone().add(normal.clone().multiplyScalar(6)),
-                    right: point.clone().add(normal.clone().multiplyScalar(-6))
-                });
-            }
-
-            const lampMaterial = new THREE.MeshPhongMaterial({ color: 0x2c2c2c, shininess: 50 });
-            const bulbMaterial = new THREE.MeshPhongMaterial({ color: 0xffffdd, emissive: 0xffffaa, emissiveIntensity: 0.8 });
-
-            lampPositions.forEach(pos => {
-                for (let side of ['left', 'right']) {
-                    const lampBase = new THREE.CylinderGeometry(0.5, 0.6, 0.5, 8);
-                    const lampPole = new THREE.CylinderGeometry(0.1, 0.12, 8, 8);
-                    const lampBulb = new THREE.SphereGeometry(0.3, 8, 8);
-                    
-                    const base = new THREE.Mesh(lampBase, lampMaterial);
-                    base.position.set(pos[side].x, -5, pos[side].z);
-                    base.castShadow = true;
-                    base.receiveShadow = true;
-
-                    const pole = new THREE.Mesh(lampPole, lampMaterial);
-                    pole.position.set(pos[side].x, 0, pos[side].z);
-                    pole.castShadow = true;
-
-                    const bulb = new THREE.Mesh(lampBulb, bulbMaterial);
-                    bulb.position.set(pos[side].x, 5, pos[side].z);
-                    bulb.castShadow = true;
-
-                    scene.add(base, pole, bulb);
-
-                    const sideLight = new THREE.PointLight(0xffffdd, 0.5, 10);
-                    sideLight.position.set(pos[side].x, 5, pos[side].z);
-                    scene.add(sideLight);
-                }
-            });
-            console.log('Added roadside lamps');
-
-            const stationPositions = [
-                { x: 35, z: -35, id: 'about', text: `About Me\n\nBekhruzbek Mirzaliev\nPHP Backend Developer\n2.5+ years experience\n\nContact: bekhruzbekmirzaliev744@gmail.com`, url: 'https://www.linkedin.com/in/bekhruzbek-mirzaliev-a68849262' },
-                { x: 70, z: -55, id: 'experience1', text: `Oqila (Apr 2025 - Present)\nPHP Developer\n\n- Adapted to Laravel, Symfony, WordPress\n- Built keyword rank checker (-40% SEO time)\n- Modernized legacy codebases`, url: '' },
-                { x: 105, z: -25, id: 'experience2', text: `Lincoln Labs (Feb 2024 - Jan 2025)\nAssociate Software Engineer\n\n- Maintained PHP/MySQL systems\n- Contributed to various projects\n- Collaborated with teams`, url: '' },
-                { x: 140, z: -55, id: 'experience3', text: `Transition (Jan 2025 - Feb 2025)\nPHP Developer Intern\n\n- Learned Symfony, React.js, AWS\n- Enhanced programming skills\n- Gained modern dev experience`, url: '' },
-                { x: 175, z: -25, id: 'education', text: `Education & Courses\n\n- Secondary School (Honors)\n- Najot Ta'lim (2024): Foundation Bootcamp\n- Najot Ta'lim (2024): PHP Backend\n- Continuous learning`, url: '' },
-                { x: 210, z: -55, id: 'skills', text: `Technical Skills\n\n- Backend: PHP, Laravel, Symfony, Yii\n- Databases: MySQL, PostgreSQL\n- APIs: REST API\n- Tools: Git, Linux, Apache, Nginx\n- Frontend: Bootstrap, JavaScript\n- Languages: Uzbek, English (C1), Russian (A2)`, url: '' },
-                { x: 245, z: -25, id: 'contact', text: `Let's Connect!\n\nReady to collaborate?\nOpen to new opportunities\n\nSend an email`, url: 'mailto:bekhruzbekmirzaliev744@gmail.com' }
-            ];
-
-            stationPositions.forEach((pos, index) => {
-                const baseGeometry = new THREE.CylinderGeometry(2, 2.5, 1, 16);
-                const baseMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a, shininess: 50 });
-                const base = new THREE.Mesh(baseGeometry, baseMaterial);
-                base.position.set(pos.x, -5, pos.z);
-                base.castShadow = true;
-                base.receiveShadow = true;
-                scene.add(base);
-
-                const topGeometry = new THREE.CylinderGeometry(1.8, 1.8, 0.2, 16);
-                const topMaterial = new THREE.MeshPhongMaterial({ color: 0x4ecdc4, emissive: 0x4ecdc4, emissiveIntensity: 0.2 });
-                const top = new THREE.Mesh(topGeometry, topMaterial);
-                top.position.set(pos.x, -4.8, pos.z);
-                scene.add(top);
-
-                const texture = createTextTexture(pos.text);
-                const holoMaterial = new THREE.MeshBasicMaterial({ map: texture, transparent: true, opacity: 0, side: THREE.DoubleSide });
-                const holo = new THREE.Mesh(new THREE.PlaneGeometry(16, 12), holoMaterial);
-                holo.position.set(pos.x, 3, pos.z);
-                holo.userData.offsetY = 0;
-                scene.add(holo);
-
-                const stationLight = new THREE.SpotLight(0x4ecdc4, 0, 15, Math.PI / 3, 0.3);
-                stationLight.position.set(pos.x, 6, pos.z);
-                stationLight.target.position.set(pos.x, -5, pos.z);
-                stationLight.castShadow = true;
-                scene.add(stationLight, stationLight.target);
-
-                stations.push({
-                    base, top, holo, light: stationLight,
-                    position: new THREE.Vector3(pos.x, -5, pos.z),
-                    index: index,
-                    url: pos.url
-                });
-            });
-            console.log('Added stations');
-
-            document.addEventListener('keydown', (e) => {
-                switch (e.code) {
-                    case 'ArrowUp':
-                    case 'KeyW':
-                        moveForward = true;
-                        if (!hasMoved) {
-                            hasMoved = true;
-                            document.getElementById('instructions').classList.add('hidden');
-                        }
-                        break;
-                    case 'ArrowDown':
-                    case 'KeyS':
-                        moveBackward = true;
-                        break;
-                    case 'ArrowLeft':
-                    case 'KeyA':
-                        moveLeft = true;
-                        break;
-                    case 'ArrowRight':
-                    case 'KeyD':
-                        moveRight = true;
-                        break;
-                }
-            });
-
-            document.addEventListener('keyup', (e) => {
-                switch (e.code) {
-                    case 'ArrowUp':
-                    case 'KeyW':
-                        moveForward = false;
-                        break;
-                    case 'ArrowDown':
-                    case 'KeyS':
-                        moveBackward = false;
-                        break;
-                    case 'ArrowLeft':
-                    case 'KeyA':
-                        moveLeft = false;
-                        break;
-                    case 'ArrowRight':
-                    case 'KeyD':
-                        moveRight = false;
-                        break;
-                }
-            });
-
-            window.addEventListener('resize', () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            });
-
-            animate();
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-
-            velocity.x -= velocity.x * 12.0 * delta;
-            velocity.z -= velocity.z * 12.0 * delta;
-            direction.z = Number(moveForward) - Number(moveBackward);
-            direction.x = Number(moveRight) - Number(moveLeft);
-            direction.normalize();
-
-            if (moveForward || moveBackward) velocity.z -= direction.z * 350.0 * delta;
-            if (moveLeft || moveRight) velocity.x -= direction.x * 350.0 * delta;
-
-            controls.moveRight(-velocity.x * delta);
-            controls.moveForward(-velocity.z * delta);
-            camera.position.y = 2;
-
-            const starPositions = scene.children.find(obj => obj.isPoints).geometry.attributes.position.array;
-            const starVelocities = scene.children.find(obj => obj.isPoints).velocities;
-            for (let i = 0; i < starPositions.length; i += 3) {
-                starPositions[i] += starVelocities[i] * delta;
-                starPositions[i + 1] += starVelocities[i + 1] * delta;
-                starPositions[i + 2] += starVelocities[i + 2] * delta;
-                if (starPositions[i] > 200) starPositions[i] -= 400;
-                if (starPositions[i] < -200) starPositions[i] += 400;
-                if (starPositions[i + 1] > 60) starPositions[i + 1] -= 50;
-                if (starPositions[i + 1] < 10) starPositions[i + 1] += 50;
-                if (starPositions[i + 2] > 200) starPositions[i + 2] -= 400;
-                if (starPositions[i + 2] < -200) starPositions[i + 2] += 400;
-            }
-            scene.children.find(obj => obj.isPoints).geometry.attributes.position.needsUpdate = true;
-
-            ground.material.emissiveIntensity = 0.1 + Math.sin(Date.now() * 0.001) * 0.05;
-
-            activeStation = null;
-            stations.forEach((s, index) => {
-                const distance = camera.position.distanceTo(s.position);
-                const cameraDir = new THREE.Vector3();
-                camera.getWorldDirection(cameraDir);
-                const stationDir = s.position.clone().sub(camera.position).normalize();
-                const dot = cameraDir.dot(stationDir);
-                const isFacing = dot > 0.7;
-
-                if (distance < 15 && isFacing && !visitedStations.has(index)) {
-                    visitedStations.add(index);
-                    s.light.intensity = 2;
-                    s.holo.material.opacity = 1;
-                }
-
-                if (distance < 15 && isFacing) {
-                    s.light.intensity = 2;
-                    s.holo.material.opacity = 1;
-                    s.top.material.emissiveIntensity = 0.5;
-                    activeStation = s;
-                    s.holo.userData.offsetY += (0.2 - s.holo.userData.offsetY) * 0.1;
-                } else {
-                    s.light.intensity = visitedStations.has(index) ? 1 : 0;
-                    s.holo.material.opacity = visitedStations.has(index) ? 0.7 : 0;
-                    s.top.material.emissiveIntensity = 0.2;
-                    s.holo.userData.offsetY += (0 - s.holo.userData.offsetY) * 0.1;
-                }
-
-                s.holo.position.y = 3 + s.holo.userData.offsetY;
-                s.holo.lookAt(camera.position);
-            });
-
-            const prompt = document.getElementById('prompt');
-            if (activeStation && activeStation.url) {
-                prompt.textContent = 'Press E to open link';
-                prompt.classList.add('visible');
+            if (window.scrollY >= heroHeight) {
+                nav.classList.add('visible');
             } else {
-                prompt.classList.remove('visible');
+                nav.classList.remove('visible');
             }
 
-            const progress = (visitedStations.size / stations.length) * 100;
-            document.getElementById('progress-fill').style.width = `${progress}%`;
+            if (window.scrollY > heroHeight / 2) {
+                hero.classList.add('scrolled');
+            } else {
+                hero.classList.remove('scrolled');
+            }
+        });
 
-            renderer.render(scene, camera);
-        }
+        // Parallax and smooth bubble movement
+        const bubbles = document.querySelectorAll('.bubble');
+        window.addEventListener('mousemove', (e) => {
+            bubbles.forEach(bubble => {
+                const speed = Math.random() * 0.04 + 0.02;
+                const x = (window.innerWidth - e.pageX * speed) / 100;
+                const y = (window.innerHeight - e.pageY * speed) / 100;
+                bubble.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
 
-        init();
+        // Ensure video plays automatically
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.querySelector('.hero-video');
+            if (video) {
+                video.play().catch(error => {
+                    console.log('Video autoplay failed:', error);
+                });
+            }
+        });
     </script>
 </body>
 </html>
