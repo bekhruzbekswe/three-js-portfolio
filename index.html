@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Through Dreams - Developer Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Creepster&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Kalam', cursive;
+            overflow-x: hidden;
+            background: #0a0a0a;
+            cursor: none;
+        }
+        
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: all 0.1s ease;
+        }
+        
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .content-overlay {
+            position: relative;
+            z-index: 2;
+            height: 600vh;
+            pointer-events: none;
+        }
+        
+        .memory-panel {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateX(-100px) scale(0.8);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            pointer-events: auto;
+        }
+        
+        .memory-panel.visible {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+        
+        .memory-panel.from-right {
+            transform: translateX(100px) scale(0.8);
+        }
+        
+        .memory-panel.from-top {
+            transform: translateY(-100px) scale(0.8);
+        }
+        
+        .memory-panel.from-bottom {
+            transform: translateY(100px) scale(0.8);
+        }
+        
+        .memory-panel h2 {
+            font-family: 'Creepster', cursive;
+            color: #ff6b9d;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+        
+        .memory-panel p {
+            color: #e0e0e0;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+        
+        .speech-bubble {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 30px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .intro-text {
+            position: absolute;
+            top: 50vh;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            font-size: 3rem;
+            font-family: 'Creepster', cursive;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            animation: fadeInOut 4s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        .progress-indicator {
+            position: fixed;
+            top: 50%;
+            right: 2rem;
+            transform: translateY(-50%);
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .progress-dot.active {
+            background: #ff6b9d;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.8);
+            transform: scale(1.2);
+        }
+        
+        .ending-section {
+            position: absolute;
+            top: 500vh;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        
+        .ending-section.visible {
+            opacity: 1;
+        }
+        
+        .ending-section h2 {
+            font-family: 'Creepster', cursive;
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Kalam', cursive;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(255, 107, 157, 0.3);
+        }
+        
+        /* Memory positions */
+        .memory-1 { top: 80vh; left: 10%; }
+        .memory-2 { top: 140vh; right: 10%; }
+        .memory-3 { top: 200vh; left: 15%; }
+        .memory-4 { top: 260vh; right: 15%; }
+        .memory-5 { top: 320vh; left: 20%; }
+        .memory-6 { top: 380vh; right: 20%; }
+        
+        @media (max-width: 768px) {
+            .memory-panel {
+                max-width: 300px;
+                padding: 1.5rem;
+                margin: 0 1rem;
+            }
+            
+            .memory-panel h2 {
+                font-size: 1.5rem;
+            }
+            
+            .intro-text {
+                font-size: 2rem;
+            }
+            
+            .memory-1, .memory-3, .memory-5 { left: 5%; }
+            .memory-2, .memory-4, .memory-6 { right: 5%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-cursor"></div>
+    
+    <div id="canvas-container"></div>
+    
+    <div class="content-overlay">
+        <div class="intro-text">Welcome to my journey...</div>
+        
+        <div class="memory-panel memory-1">
+            <h2>🌟 The Spark</h2>
+            <p>It was 2 AM when I wrote my first "Hello World". The glow of the screen felt like magic, and I knew I had found my calling in the digital realm.</p>
+            <div class="speech-bubble">
+                "Wait... I can make the computer do what I want?!"
+            </div>
+        </div>
+        
+        <div class="memory-panel memory-2 from-right">
+            <h2>💥 The Crash</h2>
+            <p>My first big project crashed spectacularly. 72 hours of work gone, no backups, ego bruised. But from those ashes, I learned the value of version control and humility.</p>
+            <div class="speech-bubble">
+                "How do I recover deleted files?! 😱"
+            </div>
+        </div>
+        
+        <div class="memory-panel memory-3 from-top">
+            <h2>🚀 First Victory</h2>
+            <p>The moment my first real application went live. Watching users interact with something I built from scratch felt like watching my child take their first steps.</p>
+            <div class="speech-bubble">
+                "It's alive! People are actually using it!"
+            </div>
+        </div>
+        
+        <div class="memory-panel memory-4 from-bottom">
+            <h2>🌙 Night Debugging</h2>
+            <p>Those endless nights battling mysterious bugs. Coffee-stained notebooks, rubber duck debugging, and the euphoria of finally finding that missing semicolon at 4 AM.</p>
+            <div class="speech-bubble">
+                "I will find you, bug. And I will fix you."
+            </div>
+        </div>
+        
+        <div class="memory-panel memory-5">
+            <h2>💼 Going Pro</h2>
+            <p>The nerve-wracking moment of landing my first paid gig. Imposter syndrome kicked in hard, but I delivered beyond expectations and realized I really was a developer.</p>
+            <div class="speech-bubble">
+                "They're paying me to do what I love?!"
+            </div>
+        </div>
+        
+        <div class="memory-panel memory-6 from-right">
+            <h2>🌈 Finding My Voice</h2>
+            <p>Learning that code isn't just about logic—it's about solving real problems for real people. Every line of code became a brushstroke in painting digital solutions.</p>
+            <div class="speech-bubble">
+                "Code is poetry for machines, magic for humans."
+            </div>
+        </div>
+        
+        <div class="ending-section">
+            <h2>Still writing my story...</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #e0e0e0;">
+                Every day brings new challenges, new discoveries, and new memories to add to this dreamscape.
+            </p>
+            <button class="cta-button" onclick="window.location.href='mailto:hello@developer.com'">
+                Let's write the next chapter together
+            </button>
+        </div>
+    </div>
+    
+    <div class="progress-indicator">
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+    </div>
+
+    <script>
+        // Custom cursor
+        const cursor = document.querySelector('.custom-cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Three.js setup
+        let scene, camera, renderer, fogMaterial, particles;
+        let scrollY = 0;
+        
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Create tilted landscape
+            const landscapeGeometry = new THREE.PlaneGeometry(50, 50, 50, 50);
+            const landscapeMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x1a1a2e,
+                transparent: true,
+                opacity: 0.3,
+                wireframe: true
+            });
+            const landscape = new THREE.Mesh(landscapeGeometry, landscapeMaterial);
+            landscape.rotation.x = -Math.PI / 2;
+            landscape.rotation.z = Math.PI / 6; // 30 degree tilt
+            landscape.position.y = -10;
+            scene.add(landscape);
+            
+            // Create fog particles
+            const particleCount = 800;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 100;
+                positions[i * 3 + 1] = Math.random() * 50 + 5;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
+                
+                const color = new THREE.Color();
+                color.setHSL(0.6 + Math.random() * 0.2, 0.3, 0.5 + Math.random() * 0.3);
+                colors[i * 3] = color.r;
+                colors[i * 3 + 1] = color.g;
+                colors[i * 3 + 2] = color.b;
+            }
+            
+            const particleGeometry = new THREE.BufferGeometry();
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.5,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+            
+            particles = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particles);
+            
+            // Camera position
+            camera.position.z = 20;
+            camera.position.y = 5;
+            
+            // Scene fog
+            scene.fog = new THREE.Fog(0x0a0a0a, 30, 100);
+            
+            animate();
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update camera position based on scroll
+            const scrollProgress = scrollY / (document.body.scrollHeight - window.innerHeight);
+            camera.position.z = 20 - scrollProgress * 60;
+            camera.position.y = 5 + Math.sin(scrollProgress * Math.PI * 2) * 2;
+            
+            // Animate particles
+            const positions = particles.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i] += Math.sin(Date.now() * 0.001 + i) * 0.01;
+                positions[i + 1] += Math.cos(Date.now() * 0.001 + i) * 0.005;
+                positions[i + 2] += Math.sin(Date.now() * 0.0005 + i) * 0.01;
+                
+                // Reset particles that go too far
+                if (positions[i + 2] > 50) {
+                    positions[i + 2] = -50;
+                }
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+            
+            // Rotate particles slowly
+            particles.rotation.y += 0.001;
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Scroll handling
+        let ticking = false;
+        
+        function updateScroll() {
+            scrollY = window.pageYOffset;
+            
+            // Update memory panels visibility
+            const memoryPanels = document.querySelectorAll('.memory-panel');
+            memoryPanels.forEach((panel, index) => {
+                const rect = panel.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2) {
+                    panel.classList.add('visible');
+                } else {
+                    panel.classList.remove('visible');
+                }
+            });
+            
+            // Update progress indicators
+            const progressDots = document.querySelectorAll('.progress-dot');
+            const scrollProgress = scrollY / (document.body.scrollHeight - window.innerHeight);
+            const activeIndex = Math.floor(scrollProgress * progressDots.length);
+            
+            progressDots.forEach((dot, index) => {
+                if (index <= activeIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+            
+            // Show ending section
+            const endingSection = document.querySelector('.ending-section');
+            if (scrollProgress > 0.85) {
+                endingSection.classList.add('visible');
+            }
+            
+            ticking = false;
+        }
+        
+        function requestTick() {
+            if (!ticking) {
+                requestAnimationFrame(updateScroll);
+                ticking = true;
+            }
+        }
+        
+        window.addEventListener('scroll', requestTick);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Initialize
+        init();
+        
+        // Add some interactive elements
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('memory-panel') || e.target.closest('.memory-panel')) {
+                const panel = e.target.closest('.memory-panel') || e.target;
+                panel.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    panel.style.transform = 'scale(1)';
+                }, 200);
+            }
+        });
+    </script>
+</body>
+</html>
