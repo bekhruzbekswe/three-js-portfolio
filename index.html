@@ -3,36 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journey Through Dreams - Developer Portfolio</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>Bekhruzbek Mirzaliev - PHP Developer Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/PointerLockControls.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Creepster&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Kalam', cursive;
-            overflow-x: hidden;
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
             background: #0a0a0a;
-            cursor: none;
+            color: #e0e0e0;
+            cursor: crosshair;
         }
-        
-        .custom-cursor {
-            position: fixed;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            mix-blend-mode: difference;
-            transition: all 0.1s ease;
-        }
-        
+
         #canvas-container {
             position: fixed;
             top: 0;
@@ -41,442 +31,477 @@
             height: 100%;
             z-index: 1;
         }
-        
-        .content-overlay {
-            position: relative;
-            z-index: 2;
-            height: 600vh;
-            pointer-events: none;
-        }
-        
-        .memory-panel {
+
+        .info-panel {
             position: absolute;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 400px;
-            opacity: 0;
-            transform: translateX(-100px) scale(0.8);
-            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            pointer-events: auto;
-        }
-        
-        .memory-panel.visible {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-        }
-        
-        .memory-panel.from-right {
-            transform: translateX(100px) scale(0.8);
-        }
-        
-        .memory-panel.from-top {
-            transform: translateY(-100px) scale(0.8);
-        }
-        
-        .memory-panel.from-bottom {
-            transform: translateY(100px) scale(0.8);
-        }
-        
-        .memory-panel h2 {
-            font-family: 'Creepster', cursive;
-            color: #ff6b9d;
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            text-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
-        }
-        
-        .memory-panel p {
-            color: #e0e0e0;
-            line-height: 1.6;
-            font-size: 1.1rem;
-        }
-        
-        .speech-bubble {
-            position: relative;
-            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #4ecdc4;
             border-radius: 15px;
-            padding: 1rem;
-            margin-top: 1rem;
-            font-style: italic;
-        }
-        
-        .speech-bubble::before {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 30px;
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 10px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .intro-text {
-            position: absolute;
-            top: 50vh;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-            font-size: 3rem;
-            font-family: 'Creepster', cursive;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            padding: 2rem;
+            max-width: 500px;
+            min-width: 400px;
             opacity: 0;
-            animation: fadeInOut 4s ease-in-out;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            pointer-events: auto;
+            color: #e0e0e0;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+            transform: translateY(20px);
+            z-index: 2;
         }
-        
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-        
-        .progress-indicator {
-            position: fixed;
-            top: 50%;
-            right: 2rem;
-            transform: translateY(-50%);
-            z-index: 3;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .progress-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .progress-dot.active {
-            background: #ff6b9d;
-            box-shadow: 0 0 10px rgba(255, 107, 157, 0.8);
-            transform: scale(1.2);
-        }
-        
-        .ending-section {
-            position: absolute;
-            top: 500vh;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            color: white;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        
-        .ending-section.visible {
+
+        .info-panel.visible {
             opacity: 1;
+            transform: translateY(0);
         }
-        
-        .ending-section h2 {
-            font-family: 'Creepster', cursive;
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+
+        .info-panel h2 {
+            color: #4ecdc4;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 8px rgba(78, 205, 196, 0.7);
         }
-        
+
+        .info-panel p, .info-panel ul {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .info-panel ul {
+            list-style: disc;
+            margin-left: 2rem;
+        }
+
         .cta-button {
-            background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+            background: linear-gradient(45deg, #4ecdc4, #ff6b9d);
             border: none;
             padding: 1rem 2rem;
-            border-radius: 50px;
+            border-radius: 30px;
             color: white;
-            font-family: 'Kalam', cursive;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            pointer-events: auto;
+            transition: transform 0.3s ease;
+            margin-top: 1.5rem;
+            display: inline-block;
+            text-decoration: none;
         }
-        
+
         .cta-button:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(255, 107, 157, 0.3);
         }
-        
-        /* Memory positions */
-        .memory-1 { top: 80vh; left: 10%; }
-        .memory-2 { top: 140vh; right: 10%; }
-        .memory-3 { top: 200vh; left: 15%; }
-        .memory-4 { top: 260vh; right: 15%; }
-        .memory-5 { top: 320vh; left: 20%; }
-        .memory-6 { top: 380vh; right: 20%; }
-        
+
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            font-size: 1.3rem;
+            z-index: 3;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+        }
+
+        #instructions.hidden {
+            display: none;
+        }
+
+        #click-message {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            color: #fff;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #click-message.visible {
+            opacity: 1;
+        }
+
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            text-align: center;
+            pointer-events: none;
+        }
+
         @media (max-width: 768px) {
-            .memory-panel {
-                max-width: 300px;
+            .info-panel {
+                max-width: 350px;
+                min-width: 300px;
                 padding: 1.5rem;
-                margin: 0 1rem;
             }
-            
-            .memory-panel h2 {
+
+            .info-panel h2 {
                 font-size: 1.5rem;
             }
-            
-            .intro-text {
-                font-size: 2rem;
+
+            .info-panel p, .info-panel ul {
+                font-size: 1rem;
             }
-            
-            .memory-1, .memory-3, .memory-5 { left: 5%; }
-            .memory-2, .memory-4, .memory-6 { right: 5%; }
+
+            #instructions, #click-message {
+                font-size: 1rem;
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="custom-cursor"></div>
-    
     <div id="canvas-container"></div>
-    
-    <div class="content-overlay">
-        <div class="intro-text">Welcome to my journey...</div>
-        
-        <div class="memory-panel memory-1">
-            <h2>🌟 The Spark</h2>
-            <p>It was 2 AM when I wrote my first "Hello World". The glow of the screen felt like magic, and I knew I had found my calling in the digital realm.</p>
-            <div class="speech-bubble">
-                "Wait... I can make the computer do what I want?!"
-            </div>
-        </div>
-        
-        <div class="memory-panel memory-2 from-right">
-            <h2>💥 The Crash</h2>
-            <p>My first big project crashed spectacularly. 72 hours of work gone, no backups, ego bruised. But from those ashes, I learned the value of version control and humility.</p>
-            <div class="speech-bubble">
-                "How do I recover deleted files?! 😱"
-            </div>
-        </div>
-        
-        <div class="memory-panel memory-3 from-top">
-            <h2>🚀 First Victory</h2>
-            <p>The moment my first real application went live. Watching users interact with something I built from scratch felt like watching my child take their first steps.</p>
-            <div class="speech-bubble">
-                "It's alive! People are actually using it!"
-            </div>
-        </div>
-        
-        <div class="memory-panel memory-4 from-bottom">
-            <h2>🌙 Night Debugging</h2>
-            <p>Those endless nights battling mysterious bugs. Coffee-stained notebooks, rubber duck debugging, and the euphoria of finally finding that missing semicolon at 4 AM.</p>
-            <div class="speech-bubble">
-                "I will find you, bug. And I will fix you."
-            </div>
-        </div>
-        
-        <div class="memory-panel memory-5">
-            <h2>💼 Going Pro</h2>
-            <p>The nerve-wracking moment of landing my first paid gig. Imposter syndrome kicked in hard, but I delivered beyond expectations and realized I really was a developer.</p>
-            <div class="speech-bubble">
-                "They're paying me to do what I love?!"
-            </div>
-        </div>
-        
-        <div class="memory-panel memory-6 from-right">
-            <h2>🌈 Finding My Voice</h2>
-            <p>Learning that code isn't just about logic—it's about solving real problems for real people. Every line of code became a brushstroke in painting digital solutions.</p>
-            <div class="speech-bubble">
-                "Code is poetry for machines, magic for humans."
-            </div>
-        </div>
-        
-        <div class="ending-section">
-            <h2>Still writing my story...</h2>
-            <p style="font-size: 1.2rem; margin-bottom: 2rem; color: #e0e0e0;">
-                Every day brings new challenges, new discoveries, and new memories to add to this dreamscape.
-            </p>
-            <button class="cta-button" onclick="window.location.href='mailto:hello@developer.com'">
-                Let's write the next chapter together
-            </button>
-        </div>
+    <div id="instructions">
+        Welcome to My Portfolio!<br>
+        Press <strong>W</strong> or <strong>↑</strong> to start your journey.<br>
+        Use <strong>WASD</strong> or <strong>Arrow Keys</strong> to move, mouse to look around.<br>
+        Click to lock/unlock controls.
     </div>
-    
-    <div class="progress-indicator">
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-    </div>
+    <div id="click-message">Click the card to continue your journey</div>
+    <div id="crosshair">+</div>
 
     <script>
-        // Custom cursor
-        const cursor = document.querySelector('.custom-cursor');
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
+        let scene, camera, renderer, controls, terrain, panels = [], arrows = [];
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let hasMoved = false, currentPanelIndex = 0;
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        const clock = new THREE.Clock();
 
-        // Three.js setup
-        let scene, camera, renderer, fogMaterial, particles;
-        let scrollY = 0;
-        
         function init() {
+            // Scene setup
             scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x0a0a0a, 50, 200);
+
+            // Camera
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            camera.position.set(0, 2, 0);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x000000, 0);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
-            
-            // Create tilted landscape
-            const landscapeGeometry = new THREE.PlaneGeometry(50, 50, 50, 50);
-            const landscapeMaterial = new THREE.MeshBasicMaterial({ 
+
+            // Controls
+            controls = new THREE.PointerLockControls(camera, document.body);
+            document.addEventListener('click', () => controls.lock());
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x606060, 0.8);
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+            directionalLight.position.set(10, 20, 10);
+            scene.add(directionalLight);
+
+            // Huge lantern lamp
+            const lanternGeometry = new THREE.SphereGeometry(2, 32, 32);
+            const lanternMaterial = new THREE.MeshBasicMaterial({ color: 0xfff0b3, transparent: true, opacity: 0.9 });
+            const lantern = new THREE.Mesh(lanternGeometry, lanternMaterial);
+            lantern.position.set(0, 30, 0);
+            scene.add(lantern);
+            const lanternLight = new THREE.PointLight(0xfff0b3, 1, 100);
+            lanternLight.position.set(0, 30, 0);
+            scene.add(lanternLight);
+
+            // Digital flat terrain
+            const terrainGeometry = new THREE.PlaneGeometry(1000, 1000, 50, 50);
+            const terrainMaterial = new THREE.MeshStandardMaterial({
                 color: 0x1a1a2e,
+                wireframe: true,
                 transparent: true,
-                opacity: 0.3,
-                wireframe: true
+                opacity: 0.5
             });
-            const landscape = new THREE.Mesh(landscapeGeometry, landscapeMaterial);
-            landscape.rotation.x = -Math.PI / 2;
-            landscape.rotation.z = Math.PI / 6; // 30 degree tilt
-            landscape.position.y = -10;
-            scene.add(landscape);
-            
-            // Create fog particles
-            const particleCount = 800;
-            const positions = new Float32Array(particleCount * 3);
-            const colors = new Float32Array(particleCount * 3);
-            
-            for (let i = 0; i < particleCount; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 100;
-                positions[i * 3 + 1] = Math.random() * 50 + 5;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 100;
-                
-                const color = new THREE.Color();
-                color.setHSL(0.6 + Math.random() * 0.2, 0.3, 0.5 + Math.random() * 0.3);
-                colors[i * 3] = color.r;
-                colors[i * 3 + 1] = color.g;
-                colors[i * 3 + 2] = color.b;
-            }
-            
+            terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+            terrain.rotation.x = -Math.PI / 2;
+            terrain.position.y = -5;
+            scene.add(terrain);
+
+            // Enhanced particles
+            const particleCount = 3000;
             const particleGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 500;
+                positions[i * 3 + 1] = Math.random() * 20;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 500;
+            }
             particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            
             const particleMaterial = new THREE.PointsMaterial({
-                size: 0.5,
-                vertexColors: true,
+                color: 0x4ecdc4,
+                size: 0.3,
                 transparent: true,
-                opacity: 0.6,
-                blending: THREE.AdditiveBlending
+                opacity: 0.7
             });
-            
-            particles = new THREE.Points(particleGeometry, particleMaterial);
+            const particles = new THREE.Points(particleGeometry, particleMaterial);
             scene.add(particles);
-            
-            // Camera position
-            camera.position.z = 20;
-            camera.position.y = 5;
-            
-            // Scene fog
-            scene.fog = new THREE.Fog(0x0a0a0a, 30, 100);
-            
+
+            // Arrow geometry
+            const arrowShape = new THREE.Shape();
+            arrowShape.moveTo(0, 1);
+            arrowShape.lineTo(-0.5, -0.5);
+            arrowShape.lineTo(0, -0.3);
+            arrowShape.lineTo(0.5, -0.5);
+            arrowShape.lineTo(0, 1);
+            const extrudeSettings = { depth: 0.2, bevelEnabled: false };
+            const arrowGeometry = new THREE.ExtrudeGeometry(arrowShape, extrudeSettings);
+            const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xff6b9d, transparent: true, opacity: 0.9 });
+
+            // Portfolio panels
+            const panelPositions = [
+                { x: 30, z: -30, id: 'about', content: `
+                    <h2>About Me</h2>
+                    <p>I am Bekhruzbek Mirzaliev, a dedicated PHP Backend Developer with over 2.5 years of experience transitioning from an English teaching background. My journey combines strong communication skills with a passion for creating efficient, scalable backend systems.</p>
+                    <p><strong>Contact:</strong> bekhruzbekmirzaliev744@gmail.com</p>
+                    <p><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/bekhruzbek-mirzaliev-a68849262" target="_blank" class="cta-button">View Profile</a></p>
+                `},
+                { x: 60, z: -50, id: 'experience1', content: `
+                    <h2>Oqila (Apr 2025 - Present)</h2>
+                    <p><strong>PHP Developer</strong></p>
+                    <ul>
+                        <li>Adapted to various frameworks (Laravel, Symfony, WordPress, Joomla) to deliver efficient solutions.</li>
+                        <li>Developed a keyword rank checker, reducing SEO task time by 40%.</li>
+                        <li>Modernized legacy codebases for new server environments, optimizing performance.</li>
+                    </ul>
+                `},
+                { x: 90, z: -20, id: 'experience2', content: `
+                    <h2>Lincoln Labs (Feb 2024 - Jan 2025)</h2>
+                    <p><strong>Associate Software Engineer</strong></p>
+                    <ul>
+                        <li>Maintained systems using PHP and MySQL, resolving technical challenges.</li>
+                        <li>Contributed to various projects, gaining experience in system maintenance.</li>
+                    </ul>
+                `},
+                { x: 120, z: -50, id: 'experience3', content: `
+                    <h2>Transition (Jan 2025 - Feb 2025)</h2>
+                    <p><strong>PHP Developer Intern</strong></p>
+                    <ul>
+                        <li>Completed learning tasks with Symfony, React.js, AWS, and PostgreSQL.</li>
+                        <li>Enhanced programming skills through structured assignments.</li>
+                    </ul>
+                `},
+                { x: 150, z: -20, id: 'education', content: `
+                    <h2>Education & Courses</h2>
+                    <ul>
+                        <li><strong>Secondary School</strong> - Completed</li>
+                        <li><strong>Najot Ta'lim (2024)</strong> - Foundation Bootcamp: Basics of Programming</li>
+                        <li><strong>Najot Ta'lim (2024)</strong> - Result Bootcamp: PHP Backend Development</li>
+                    </ul>
+                `},
+                { x: 180, z: -50, id: 'skills', content: `
+                    <h2>Skills</h2>
+                    <ul>
+                        <li>PHP, Laravel, Symfony, Yii</li>
+                        <li>MySQL, PostgreSQL, SQL</li>
+                        <li>REST API, Git, Linux</li>
+                        <li>Apache, Nginx, Bootstrap</li>
+                        <li>Languages: Uzbek (Native), English (C1), Russian (A2)</li>
+                    </ul>
+                `},
+                { x: 210, z: -20, id: 'contact', content: `
+                    <h2>Contact Me</h2>
+                    <p>Let's collaborate on your next project!</p>
+                    <a href="mailto:bekhruzbekmirzaliev744@gmail.com" class="cta-button">Email Me</a>
+                `}
+            ];
+
+            panelPositions.forEach(pos => {
+                // Create 3D billboard
+                const canvas = document.createElement('canvas');
+                canvas.width = 1024;
+                canvas.height = 1024;
+                const context = canvas.getContext('2d');
+                context.fillStyle = 'rgba(0, 0, 0, 0.85)';
+                context.fillRect(0, 0, canvas.width, canvas.height);
+                const texture = new THREE.CanvasTexture(canvas);
+                const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+                const sprite = new THREE.Sprite(material);
+                sprite.position.set(pos.x, 3, pos.z);
+                sprite.scale.set(15, 15, 1);
+                scene.add(sprite);
+
+                // Create HTML panel
+                const panel = document.createElement('div');
+                panel.className = 'info-panel';
+                panel.id = pos.id;
+                panel.innerHTML = pos.content;
+                panel.style.pointerEvents = 'auto';
+                document.body.appendChild(panel);
+                panels.push({ sprite, panel, position: new THREE.Vector3(pos.x, 3, pos.z) });
+            });
+
+            // Create arrows
+            panels.forEach(() => {
+                const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+                arrow.position.set(0, -10, 0); // Hidden initially
+                scene.add(arrow);
+                arrows.push(arrow);
+            });
+
+            // Movement controls
+            document.addEventListener('keydown', (e) => {
+                switch (e.code) {
+                    case 'ArrowUp':
+                    case 'KeyW':
+                        moveForward = true;
+                        if (!hasMoved) {
+                            hasMoved = true;
+                            document.getElementById('instructions').classList.add('hidden');
+                            updateArrow();
+                        }
+                        break;
+                    case 'ArrowDown':
+                    case 'KeyS':
+                        moveBackward = true;
+                        break;
+                    case 'ArrowLeft':
+                    case 'KeyA':
+                        moveLeft = true;
+                        break;
+                    case 'ArrowRight':
+                    case 'KeyD':
+                        moveRight = true;
+                        break;
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                switch (e.code) {
+                    case 'ArrowUp':
+                    case 'KeyW':
+                        moveForward = false;
+                        break;
+                    case 'ArrowDown':
+                    case 'KeyS':
+                        moveBackward = false;
+                        break;
+                    case 'ArrowLeft':
+                    case 'KeyA':
+                        moveLeft = false;
+                        break;
+                    case 'ArrowRight':
+                    case 'KeyD':
+                        moveRight = false;
+                        break;
+                }
+            });
+
+            // Click handler for panels
+            document.addEventListener('click', (e) => {
+                if (currentPanelIndex >= panels.length) return;
+                const panel = panels[currentPanelIndex];
+                const distance = camera.position.distanceTo(panel.position);
+                if (distance < 10 && e.target.closest('.info-panel')) {
+                    arrows[currentPanelIndex].position.set(0, -10, 0);
+                    document.getElementById('click-message').classList.remove('visible');
+                    if (currentPanelIndex < panels.length - 1) {
+                        currentPanelIndex++;
+                        updateArrow();
+                    }
+                }
+            });
+
+            // Window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
             animate();
         }
-        
+
+        function updateArrow() {
+            if (currentPanelIndex < panels.length) {
+                const arrow = arrows[currentPanelIndex];
+                arrow.position.set(0, -10, 0); // Reset to update in animate
+            }
+        }
+
         function animate() {
             requestAnimationFrame(animate);
-            
-            // Update camera position based on scroll
-            const scrollProgress = scrollY / (document.body.scrollHeight - window.innerHeight);
-            camera.position.z = 20 - scrollProgress * 60;
-            camera.position.y = 5 + Math.sin(scrollProgress * Math.PI * 2) * 2;
-            
-            // Animate particles
-            const positions = particles.geometry.attributes.position.array;
-            for (let i = 0; i < positions.length; i += 3) {
-                positions[i] += Math.sin(Date.now() * 0.001 + i) * 0.01;
-                positions[i + 1] += Math.cos(Date.now() * 0.001 + i) * 0.005;
-                positions[i + 2] += Math.sin(Date.now() * 0.0005 + i) * 0.01;
-                
-                // Reset particles that go too far
-                if (positions[i + 2] > 50) {
-                    positions[i + 2] = -50;
+            const delta = clock.getDelta();
+
+            // Movement
+            velocity.x -= velocity.x * 10.0 * delta;
+            velocity.z -= velocity.z * 10.0 * delta;
+            direction.z = Number(moveForward) - Number(moveBackward);
+            direction.x = Number(moveRight) - Number(moveLeft);
+            direction.normalize();
+
+            if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+            if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+            controls.moveRight(-velocity.x * delta);
+            controls.moveForward(-velocity.z * delta);
+
+            // Keep camera at fixed height
+            camera.position.y = -5 + 2;
+
+            // Update panels
+            panels.forEach((p, index) => {
+                const distance = camera.position.distanceTo(p.position);
+                p.sprite.lookAt(camera.position);
+
+                // Project 3D position to screen space
+                const vector = p.position.clone().project(camera);
+                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+                p.panel.style.left = `${x}px`;
+                p.panel.style.top = `${y}px`;
+                p.panel.style.transform = `translate(-50%, -50%) ${distance < 20 ? 'translateY(0)' : 'translateY(20px)'}`;
+                p.panel.style.opacity = distance < 20 ? 1 : 0;
+                p.panel.classList.toggle('visible', distance < 20);
+
+                // Show click message
+                const clickMessage = document.getElementById('click-message');
+                if (index === currentPanelIndex && distance < 10) {
+                    clickMessage.classList.add('visible');
+                } else if (index === currentPanelIndex) {
+                    clickMessage.classList.remove('visible');
                 }
+            });
+
+            // Update arrows
+            if (currentPanelIndex < panels.length) {
+                const arrow = arrows[currentPanelIndex];
+                const targetPos = panels[currentPanelIndex].position;
+                const cameraDir = new THREE.Vector3();
+                camera.getWorldDirection(cameraDir);
+                const arrowPos = camera.position.clone().add(cameraDir.multiplyScalar(5));
+                arrowPos.y = -5 + 3;
+                arrow.position.copy(arrowPos);
+                arrow.lookAt(targetPos);
+                arrow.rotateX(Math.PI / 2);
+                arrow.material.opacity = 0.9 + Math.sin(Date.now() * 0.003) * 0.1;
             }
-            particles.geometry.attributes.position.needsUpdate = true;
-            
-            // Rotate particles slowly
-            particles.rotation.y += 0.001;
-            
+
+            // Animate particles
+            const particlePositions = scene.children.find(obj => obj.isPoints).geometry.attributes.position.array;
+            for (let i = 0; i < particlePositions.length; i += 3) {
+                particlePositions[i + 1] += Math.sin(Date.now() * 0.001 + i) * 0.01;
+                if (particlePositions[i + 1] > 20) particlePositions[i + 1] = 0;
+            }
+            scene.children.find(obj => obj.isPoints).geometry.attributes.position.needsUpdate = true;
+
             renderer.render(scene, camera);
         }
-        
-        // Scroll handling
-        let ticking = false;
-        
-        function updateScroll() {
-            scrollY = window.pageYOffset;
-            
-            // Update memory panels visibility
-            const memoryPanels = document.querySelectorAll('.memory-panel');
-            memoryPanels.forEach((panel, index) => {
-                const rect = panel.getBoundingClientRect();
-                if (rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2) {
-                    panel.classList.add('visible');
-                } else {
-                    panel.classList.remove('visible');
-                }
-            });
-            
-            // Update progress indicators
-            const progressDots = document.querySelectorAll('.progress-dot');
-            const scrollProgress = scrollY / (document.body.scrollHeight - window.innerHeight);
-            const activeIndex = Math.floor(scrollProgress * progressDots.length);
-            
-            progressDots.forEach((dot, index) => {
-                if (index <= activeIndex) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
-            
-            // Show ending section
-            const endingSection = document.querySelector('.ending-section');
-            if (scrollProgress > 0.85) {
-                endingSection.classList.add('visible');
-            }
-            
-            ticking = false;
-        }
-        
-        function requestTick() {
-            if (!ticking) {
-                requestAnimationFrame(updateScroll);
-                ticking = true;
-            }
-        }
-        
-        window.addEventListener('scroll', requestTick);
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        
-        // Initialize
+
         init();
-        
-        // Add some interactive elements
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('memory-panel') || e.target.closest('.memory-panel')) {
-                const panel = e.target.closest('.memory-panel') || e.target;
-                panel.style.transform = 'scale(1.05)';
-                setTimeout(() => {
-                    panel.style.transform = 'scale(1)';
-                }, 200);
-            }
-        });
     </script>
 </body>
 </html>
