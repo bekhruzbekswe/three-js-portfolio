@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bekhruzbek Mirzaliev - PHP Developer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #007AFF, #5856D6);
+            --glass-bg: rgba(255, 255, 255, 0.3);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-primary: #1F1F1F;
+            --text-secondary: #4B4B4B;
+            --text-accent: #007AFF;
+            --shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            --bubble-color-1: rgba(255, 100, 100, 0.7);
+            --bubble-color-2: rgba(100, 255, 100, 0.7);
+            --bubble-color-3: rgba(100, 100, 255, 0.7);
+            --bubble-color-4: rgba(255, 255, 100, 0.7);
+            --bubble-color-5: rgba(255, 100, 255, 0.7);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+            background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.6;
+        }
+
+        /* Animated bubble background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.9), transparent 60%);
+            opacity: 0.8;
+            animation: float 8s infinite ease-in-out, shimmer 2s infinite ease-in-out, wobble 4s infinite ease-in-out;
+            box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.4), 0 0 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .bubble:nth-child(1) { background-color: var(--bubble-color-1); width: 180px; height: 180px; left: 10%; top: 20%; animation-duration: 9s, 2.2s, 4.5s; }
+        .bubble:nth-child(2) { background-color: var(--bubble-color-2); width: 220px; height: 220px; left: 40%; top: 60%; animation-duration: 10s, 2.1s, 4.2s; animation-delay: -3s; }
+        .bubble:nth-child(3) { background-color: var(--bubble-color-3); width: 200px; height: 200px; right: 15%; top: 30%; animation-duration: 8.5s, 2.3s, 4.8s; animation-delay: -6s; }
+        .bubble:nth-child(4) { background-color: var(--bubble-color-4); width: 240px; height: 240px; right: 25%; top: 70%; animation-duration: 11s, 2.4s, 4.3s; animation-delay: -9s; }
+        .bubble:nth-child(5) { background-color: var(--bubble-color-5); width: 190px; height: 190px; left: 50%; top: 40%; animation-duration: 9.5s, 2.5s, 4.6s; animation-delay: -4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+            50% { transform: translateY(-150px) translateX(50px) scale(1.1); }
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes wobble {
+            0%, 100% { border-radius: 50% 50% 50% 50%; }
+            25% { border-radius: 50% 45% 55% 50%; }
+            50% { border-radius: 45% 50% 50% 55%; }
+            75% { border-radius: 50% 55% 45% 50%; }
+        }
+
+        /* iOS 26-like water droplet glass effect */
+        .glass {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            box-shadow: var(--shadow), inset 0 0 30px rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.4), transparent 70%);
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+            transform: rotate(45deg);
+        }
+
+        .glass:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 35px rgba(255, 255, 255, 0.4);
+        }
+
+        .glass:hover::before {
+            opacity: 0.8;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            padding: 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-tab {
+            padding: 12px 26px;
+            border-radius: 14px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-tab.active, .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--text-primary);
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Main content */
+        .main {
+            padding-top: 140px;
+        }
+
+        /* Hero section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 32px;
+            position: relative;
+        }
+
+        .hero-glass {
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid var(--glass-border);
+            border-radius: 36px;
+            padding: 60px;
+            max-width: 1200px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), inset 0 0 30px rgba(255, 255, 255, 0.4);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 48px;
+        }
+
+        .hero-image {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .hero .about-brief {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            max-width: 600px;
+            line-height: 1.8;
+        }
+
+        .hero .about-brief a {
+            color: var(--text-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .hero .about-brief a:hover {
+            text-decoration: underline;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 18px 36px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 17px;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .cta-btn.primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: #FFFFFF;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Sections */
+        .section {
+            padding: 140px 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 100px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(3rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .section-header p {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Card grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 40px;
+        }
+
+        .card {
+            padding: 48px;
+            transition: all 0.3s ease;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 24px;
+            display: block;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card h3 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1.2rem;
+        }
+
+        .card ul {
+            list-style: none;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-top: 16px;
+        }
+
+        .card ul li::before {
+            content: '•';
+            color: var(--text-accent);
+            margin-right: 8px;
+        }
+
+        /* Experience timeline */
+        .timeline {
+            position: relative;
+            padding: 48px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--glass-border);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: calc(50% - 48px);
+            padding: 40px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 40px;
+            width: 16px;
+            height: 16px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px rgba(0, 122, 255, 0.6);
+            z-index: 2;
+        }
+
+        .timeline-content h4 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .timeline-content .company {
+            color: var(--text-accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .timeline-content .duration {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .timeline-content p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .timeline-content ul {
+            list-style: none;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-top: 16px;
+        }
+
+        .timeline-content ul li::before {
+            content: '•';
+            color: var(--text-accent);
+            margin-right: 8px;
+        }
+
+        /* Skills */
+        .skills-container {
+            padding: 56px;
+            text-align: center;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .skill-item {
+            padding: 20px;
+            border-radius: 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.3);
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .skill-item:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Contact section */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+        }
+
+        .contact-item {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .contact-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .contact-item h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .contact-item p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .contact-item a {
+            color: var(--text-accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .contact-item a:hover {
+            color: #5856D6;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .animate-on-scroll.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                width: 95%;
+                padding: 8px;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+            }
+
+            .nav-tab {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+
+            .hero-glass {
+                padding: 40px 24px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-image {
+                width: 200px;
+                height: 200px;
+                margin-bottom: 24px;
+            }
+
+            .hero-content {
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: clamp(2.2rem, 4vw, 3rem);
+            }
+
+            .hero .subtitle {
+                font-size: clamp(1.2rem, 2.5vw, 1.5rem);
+            }
+
+            .timeline::before {
+                left: 24px;
+            }
+
+            .timeline-item {
+                flex-direction: column !important;
+                margin-bottom: 60px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 72px);
+                margin-left: 48px;
+                padding: 24px;
+            }
+
+            .timeline-dot {
+                left: 24px;
+                top: 24px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .section {
+                padding: 80px 0;
+            }
+
+            .section-header h2 {
+                font-size: clamp(2.2rem, 4vw, 3rem);
+            }
+
+            .skills-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background with animated bubbles -->
+    <div class="background">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-tabs">
+            <a href="#overview" class="nav-tab active">Overview</a>
+            <a href="#about" class="nav-tab">About</a>
+            <a href="#experience" class="nav-tab">Experience</a>
+            <a href="#skills" class="nav-tab">Skills</a>
+            <a href="#contact" class="nav-tab">Contact</a>
+        </div>
+    </nav>
+
+    <main class="main">
+        <!-- Hero Section -->
+        <section class="hero" id="overview">
+            <div class="hero-glass glass animate-on-scroll">
+                <div class="hero-image">
+                    <img src="https://via.placeholder.com/280" alt="Bekhruzbek Mirzaliev">
+                </div>
+                <div class="hero-content">
+                    <h1>Bekhruzbek Mirzaliev</h1>
+                    <div class="subtitle">PHP Backend Developer</div>
+                    <div class="about-brief">
+                        I'm a passionate PHP developer with expertise in crafting scalable backend solutions using frameworks like Laravel, Symfony, and Yii. With a background in ESL teaching, I bring strong communication skills to simplify complex technical concepts and drive team collaboration. My work focuses on automation, performance optimization, and seamless API integrations. <a href="#about">Learn more about my journey</a>.
+                    </div>
+                    <div class="cta-buttons">
+                        <a href="#contact" class="cta-btn primary">Get in Touch</a>
+                        <a href="https://www.linkedin.com/in/bekhruzbek-mirzaliev-a68849262" class="cta-btn" target="_blank">View LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="section" id="about">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <h2>Crafting Digital Excellence</h2>
+                    <p>Blending technical expertise with creative problem-solving to deliver robust backend solutions</p>
+                </div>
+                
+                <div class="cards-grid">
+                    <div class="card glass animate-on-scroll">
+                        <span class="card-icon">🚀</span>
+                        <h3>Innovation First</h3>
+                        <p>Developed internal automation tools that reduced SEO task time by over 40%, demonstrating my commitment to efficiency and innovation in problem-solving.</p>
+                        <ul>
+                            <li>Designed a custom PHP-based automation suite for SEO workflows</li>
+                            <li>Integrated APIs to streamline data processing</li>
+                            <li>Reduced manual workload by automating repetitive tasks</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card glass animate-on-scroll">
+                        <span class="card-icon">🔧</span>
+                        <h3>Technical Versatility</h3>
+                        <p>Proficient across multiple PHP frameworks including Laravel, Symfony, and Yii, with expertise in modernizing legacy systems and optimizing performance.</p>
+                        <ul>
+                            <li>Modernized legacy PHP applications for improved scalability</li>
+                            <li>Optimized database queries for 30% faster response times</li>
+                            <li>Implemented RESTful APIs for seamless integrations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card glass animate-on-scroll">
+                        <span class="card-icon">🌟</span>
+                        <h3>Unique Background</h3>
+                        <p>Former ESL teacher with exceptional communication skills, bringing the ability to simplify complex concepts and collaborate effectively in team environments.</p>
+                        <ul>
+                            <li>Translated technical requirements into actionable plans</li>
+                            <li>Facilitated cross-functional team collaboration</li>
+                            <li>Mentored junior developers in best practices</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experience Section -->
+        <section class="section" id="experience">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <h2>Professional Journey</h2>
+                    <p>A timeline of impactful contributions and technical growth</p>
+                </div>
+                
+                <div class="timeline">
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content glass">
+                            <h4>PHP Developer</h4>
+                            <div class="company">Oqila</div>
+                            <div class="duration">April 2025 - Present</div>
+                            <p>Leading development of internal automation tools and modernizing legacy systems for enhanced performance and scalability.</p>
+                            <ul>
+                                <li>Developed a PHP-based automation suite reducing task time by 40%</li>
+                                <li>Migrated legacy codebases to modern PHP frameworks</li>
+                                <li>Optimized server configurations for high-traffic applications</li>
+                                <li>Collaborated with frontend teams for seamless API integrations</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content glass">
+                            <h4>Associate Software Engineer</h4>
+                            <div class="company">Lincoln Labs</div>
+                            <div class="duration">January 2025 - March 2025</div>
+                            <p>Contributed to system maintenance and technical problem resolution, enhancing project efficiency.</p>
+                            <ul>
+                                <li>Maintained and optimized PHP-based applications</li>
+                                <li>Resolved critical bugs in production environments</li>
+                                <li>Implemented MySQL database optimizations</li>
+                                <li>Supported cross-functional teams in agile workflows</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    
+                    <div class="timeline-item animate-on-scroll">
+                        <div class="timeline-content glass">
+                            <h4>PHP Developer (Intern)</h4>
+                            <div class="company">iTransition</div>
+                            <div class="duration">January 2025 - February 2025</div>
+                            <p>Gained hands-on experience with modern PHP frameworks and cloud technologies in a remote setting.</p>
+                            <ul>
+                                <li>Developed features using Symfony and React.js</li>
+                                <li>Deployed applications on AWS infrastructure</li>
+                                <li>Designed PostgreSQL database schemas</li>
+                                <li>Participated in code reviews and agile sprints</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section class="section" id="skills">
+            <div class="container">
+                <div class="skills-container glass animate-on-scroll">
+                    <h2 style="color: var(--text-primary); margin-bottom: 20px;">Technical Expertise</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 40px;">Mastering the tools that power modern web development</p>
+                    
+                    <div class="skills-grid">
+                        <div class="skill-item">PHP</div>
+                        <div class="skill-item">Laravel</div>
+                        <div class="skill-item">Symfony</div>
+                        <div class="skill-item">Yii Framework</div>
+                        <div class="skill-item">MySQL</div>
+                        <div class="skill-item">PostgreSQL</div>
+                        <div class="skill-item">REST API</div>
+                        <div class="skill-item">GraphQL</div>
+                        <div class="skill-item">Git</div>
+                        <div class="skill-item">Linux</div>
+                        <div class="skill-item">Apache</div>
+                        <div class="skill-item">Nginx</div>
+                        <div class="skill-item">AWS</div>
+                        <div class="skill-item">React.js</div>
+                        <div class="skill-item">Bootstrap</div>
+                        <div class="skill-item">Docker</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="section" id="contact">
+            <div class="container">
+                <div class="section-header animate-on-scroll">
+                    <h2>Let's Collaborate</h2>
+                    <p>Ready to build something extraordinary together</p>
+                </div>
+                
+                <div class="contact-grid">
+                    <div class="contact-item glass animate-on-scroll">
+                        <span class="contact-icon">✉️</span>
+                        <h4>Email</h4>
+                        <p>Reach out for project inquiries or opportunities</p>
+                        <a href="mailto:bekhruzbekmirzaliev744@gmail.com">bekhruzbekmirzaliev744@gmail.com</a>
+                    </div>
+                    
+                    <div class="contact-item glass animate-on-scroll">
+                        <span class="contact-icon">💼</span>
+                        <h4>LinkedIn</h4>
+                        <p>Connect for professional networking</p>
+                        <a href="https://www.linkedin.com/in/bekhruzbek-mirzaliev-a68849262" target="_blank">Connect with me</a>
+                    </div>
+                    
+                    <div class="contact-item glass animate-on-scroll">
+                        <span class="contact-icon">📞</span>
+                        <h4>Phone</h4>
+                        <p>Available for direct discussions</p>
+                        <a href="tel:+998912809757">+998 (91) 280-97-57</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = tab.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+                
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Navigation active state on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const scrollPos = window.scrollY + 200;
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                const sectionId = section.getAttribute('id');
+
+                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                    document.querySelectorAll('.nav-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                        if (tab.getAttribute('href') === `#${sectionId}`) {
+                            tab.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Parallax and smooth bubble movement
+        const bubbles = document.querySelectorAll('.bubble');
+        window.addEventListener('mousemove', (e) => {
+            bubbles.forEach(bubble => {
+                const speed = Math.random() * 0.04 + 0.02;
+                const x = (window.innerWidth - e.pageX * speed) / 100;
+                const y = (window.innerHeight - e.pageY * speed) / 100;
+                bubble.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
