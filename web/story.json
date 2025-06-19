@@ -1,0 +1,243 @@
+[
+      {
+        "id": "1",
+        "question": "After trying for 2 years to get a U.S. visa and failing, you're devastated. What do you do next?",
+        "choices": [
+          {
+            "text": "Work as an ESL teacher",
+            "correct": true,
+            "next": "2",
+            "response": "You take a practical path and start working as an ESL teacher. It gives you structure, and time to reflect."
+          },
+          {
+            "text": "Apply to a university in Uzbekistan",
+            "correct": false,
+            "next": "2",
+            "response": "You go back to studying locally. It's familiar, but doesn't light your fire."
+          },
+          {
+            "text": "Try moving to the EU instead",
+            "correct": false,
+            "next": "2",
+            "response": "You research options, but the process is long and discouraging. You start to feel stuck."
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "question": "In your free time, something pulls you toward tech. What sparks your interest?",
+        "choices": [
+          {
+            "text": "A video lesson on YouTube",
+            "correct": true,
+            "next": "3",
+            "response": "You stumble across a video and it clicks. Tech might be the way forward."
+          },
+          {
+            "text": "A friend pushes you into it",
+            "correct": false,
+            "next": "3",
+            "response": "Peer pressure works. You give tech a shot out of curiosity."
+          },
+          {
+            "text": "An online ad catches your eye",
+            "correct": false,
+            "next": "3",
+            "response": "You follow an ad into the world of programming. Clickbait never felt so right."
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "question": "What language do you start learning first?",
+        "choices": [
+          {
+            "text": "C++",
+            "correct": true,
+            "next": "4",
+            "response": "C++ it is. Low-level, tough, but you love seeing how things work underneath."
+          },
+          {
+            "text": "Python",
+            "correct": false,
+            "next": "4",
+            "response": "Python’s clean syntax feels friendly. You begin writing basic scripts."
+          },
+          {
+            "text": "HTML/CSS",
+            "correct": false,
+            "next": "4",
+            "response": "You jump into visuals. It feels creative but lacks the logic you crave."
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "question": "You hear about Najot Ta'lim Bootcamp. What do you do?",
+        "choices": [
+          {
+            "text": "Join for structured learning",
+            "correct": true,
+            "next": "5",
+            "response": "You dive in. The structure gives you clarity and serious momentum."
+          },
+          {
+            "text": "Stick to YouTube tutorials",
+            "correct": false,
+            "next": "5",
+            "response": "You continue alone. It's slow but flexible."
+          },
+          {
+            "text": "Postpone and focus on work",
+            "correct": false,
+            "next": "5",
+            "response": "You pause tech dreams. Life gets in the way — but curiosity remains."
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "question": "You’ve learned some languages. Which one do you connect with most?",
+        "choices": [
+          {
+            "text": "C — I love understanding what's under the hood",
+            "correct": true,
+            "next": "6",
+            "response": "C is raw and powerful. You love knowing exactly what happens."
+          },
+          {
+            "text": "Python — it feels so elegant and readable",
+            "correct": false,
+            "next": "6",
+            "response": "Python is like poetry. But you miss the raw control."
+          },
+          {
+            "text": "JavaScript — I like seeing visual changes",
+            "correct": false,
+            "next": "6",
+            "response": "Instant results on screen are fun, but you crave deeper logic."
+          }
+        ]
+      },
+      {
+        "id": "6",
+        "question": "Time to build your first serious project. What do you make?",
+        "choices": [
+          {
+            "text": "CLI Tic Tac Toe with AI using if-statements",
+            "correct": true,
+            "next": "7",
+            "response": "You brute-force your way through. It’s ugly, but it works — and it teaches you a lot."
+          },
+          {
+            "text": "To-Do app with GUI",
+            "correct": false,
+            "next": "7",
+            "response": "Useful and neat, but lacks challenge."
+          },
+          {
+            "text": "Simple portfolio website",
+            "correct": false,
+            "next": "7",
+            "response": "Looks cool, but you feel like you’re scratching the surface."
+          }
+        ]
+      },
+      {
+        "id": "7",
+        "question": "Have you ever thought of giving up?",
+        "choices": [
+          {
+            "text": "Yes, many times… but I gave it my all",
+            "correct": true,
+            "next": "8",
+            "response": "You’re all in. When doubt hits, you remember what’s at stake."
+          },
+          {
+            "text": "Yes, and I did pause for a while",
+            "correct": false,
+            "next": "8",
+            "response": "Burnout is real. But the spark never fully dies."
+          },
+          {
+            "text": "No, I always knew I'd make it",
+            "correct": false,
+            "next": "8",
+            "response": "Confidence is powerful — but real struggle builds resilience."
+          }
+        ]
+      },
+      {
+        "id": "8",
+        "question": "Now it's time to choose your specialization. What do you focus on?",
+        "choices": [
+          {
+            "text": "Backend with PHP — the harder path",
+            "correct": true,
+            "next": "9",
+            "response": "You love the challenge. Backend logic feels like home."
+          },
+          {
+            "text": "Frontend with JS — quick wins & animations",
+            "correct": false,
+            "next": "9",
+            "response": "Fun and interactive, but not your final destination."
+          },
+          {
+            "text": "Mobile apps with Flutter",
+            "correct": false,
+            "next": "9",
+            "response": "Apps are cool, but you still want to master the web stack first."
+          }
+        ]
+      },
+      {
+        "id": "9",
+        "question": "Instead of using Laravel, you choose to…?",
+        "choices": [
+          {
+            "text": "Build my own PHP framework to understand MVC",
+            "correct": true,
+            "next": "10",
+            "response": "You go deep. It’s painful at first, but the insights are priceless."
+          },
+          {
+            "text": "Use Laravel to build faster",
+            "correct": false,
+            "next": "10",
+            "response": "Laravel is clean and quick, but you miss learning core fundamentals."
+          },
+          {
+            "text": "Switch to Node.js instead",
+            "correct": false,
+            "next": "10",
+            "response": "You pivot hard. Node is cool, but PHP still haunts you."
+          }
+        ]
+      },
+      {
+        "id": "10",
+        "question": "You’re now skilled and focused. What’s your current goal?",
+        "choices": [
+          {
+            "text": "Reach strong middle-level at an international company",
+            "correct": true,
+            "next": null,
+            "response": "That’s the mission. You're well on your way — let’s see how others compare."
+          },
+          {
+            "text": "Build my own SaaS or product",
+            "correct": false,
+            "next": null,
+            "response": "You’ve got the startup dream. You’ll need focus and time to build it."
+          },
+          {
+            "text": "Become a YouTube teacher or tech influencer",
+            "correct": false,
+            "next": null,
+            "response": "You want to inspire others. Legacy > code."
+          }
+        ]
+      }
+    ]
+    
